@@ -15,14 +15,15 @@
         "subscriptionType": "object.creation",
         "objectName": "contact",
         "active": false
+      },
+      {
+        "subscriptionType": "object.propertyChange",
+        "objectName": "contact",
+        "propertyName": "lastname",
+        "active": false
       }
     ],
     "legacyCrmObjects": [
-      {
-        "subscriptionType": "contact.propertyChange",
-        "propertyName": "lastname",
-        "active": false
-      },
       {
         "subscriptionType": "contact.deletion",
         "active": false

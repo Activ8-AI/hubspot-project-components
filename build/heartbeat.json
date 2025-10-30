@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "timestamp": "2025-10-30T15:58:25Z",
+  "app": "hubspot-project-components",
+  "host": "MacBookAir.lan",
+  "git": {
+    "commit": "fdb6170",
+    "branch": "webhooks-inactive"
+  },
+  "status": "ok",
+  "details": {
+    "runtime": "bash",
+    "schema": "one-heartbeat"
+  }
+}

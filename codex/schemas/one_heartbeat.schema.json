@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "One Heartbeat",
+  "type": "object",
+  "required": [
+    "timestamp_CT",
+    "hb.charter.integrity.status",
+    "hb.execution.multi_agent.status",
+    "hb.reports.aggregate.status",
+    "hb.reflexive.equilibrium.status",
+    "hb.system.agent_registry.status",
+    "hb.vault.seals.integrity",
+    "hb.codex.sync.state"
+  ],
+  "properties": {
+    "timestamp_CT": {"type": "string"},
+    "hb.charter.integrity.status": {"enum": ["GREEN", "YELLOW", "RED"]},
+    "hb.execution.multi_agent.status": {"enum": ["GREEN", "YELLOW", "RED"]},
+    "hb.reports.aggregate.status": {"enum": ["GREEN", "YELLOW", "RED"]},
+    "hb.reflexive.equilibrium.status": {"enum": ["GREEN", "YELLOW", "RED"]},
+    "hb.system.agent_registry.status": {"enum": ["GREEN", "YELLOW", "RED"]},
+    "hb.vault.seals.integrity": {"enum": ["verified", "degraded"]},
+    "hb.codex.sync.state": {"enum": ["synchronized", "syncing", "degraded"]}
+  },
+  "additionalProperties": false
+}
+
+

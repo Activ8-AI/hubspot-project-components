@@ -1,0 +1,7 @@
+# HELP heartbeat_success_total Number of successful heartbeat syncs
+# TYPE heartbeat_success_total counter
+heartbeat_success_total{app="hubspot-project-components"} 1
+
+# HELP heartbeat_timestamp_seconds Unix time of last heartbeat
+# TYPE heartbeat_timestamp_seconds gauge
+heartbeat_timestamp_seconds{app="hubspot-project-components"} 1761839906

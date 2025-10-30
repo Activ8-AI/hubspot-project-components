@@ -1,0 +1,16 @@
+[Unit]
+Description=One Heartbeat Sync
+Wants=heartbeat.timer
+
+[Service]
+Type=oneshot
+WorkingDirectory=/Users/stanmilan/Activ8_AI/hubspot-project-components
+ExecStart=/Users/stanmilan/Activ8_AI/hubspot-project-components/system/orchestration/heartbeat_sync.sh
+Environment=APP_NAME=hubspot-project-components
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+
+

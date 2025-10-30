@@ -1,0 +1,38 @@
+groups:
+  - name: one_heartbeat_alerts
+    rules:
+      - alert: CharterIntegrityDown
+        expr: hb_charter_integrity_status == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Charter A09 integrity check failed"
+          description: "Charter verification has been failing for more than 1 minute"
+
+      - alert: SystemDegraded
+        expr: hb_execution_multi_agent_status < 1 or hb_reports_aggregate_status < 1 or hb_reflexive_equilibrium_status < 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "One or more system components degraded"
+          description: "System components showing YELLOW status for more than 2 minutes"
+
+      - alert: VaultSealsDegraded
+        expr: hb_vault_seals_integrity == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Vault seals integrity degraded"
+          description: "Vault seals verification has been failing for more than 5 minutes"
+
+      - alert: CodexSyncStalled
+        expr: hb_codex_sync_state == 0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Codex synchronization stalled"
+          description: "Codex sync has been stuck for more than 10 minutes"

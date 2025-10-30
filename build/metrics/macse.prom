@@ -1,0 +1,21 @@
+# HELP hb_charter_integrity_status Charter integrity status (1=GREEN,0.5=YELLOW,0=RED)
+# TYPE hb_charter_integrity_status gauge
+hb_charter_integrity_status 1
+# HELP hb_execution_multi_agent_status Multi-agent execution status
+# TYPE hb_execution_multi_agent_status gauge
+hb_execution_multi_agent_status 1
+# HELP hb_reports_aggregate_status Aggregate reports status
+# TYPE hb_reports_aggregate_status gauge
+hb_reports_aggregate_status 1
+# HELP hb_reflexive_equilibrium_status Reflexive equilibrium status
+# TYPE hb_reflexive_equilibrium_status gauge
+hb_reflexive_equilibrium_status 1
+# HELP hb_system_agent_registry_status Agent registry status
+# TYPE hb_system_agent_registry_status gauge
+hb_system_agent_registry_status 1
+# HELP hb_vault_seals_integrity Vault seals integrity (1=verified,0=degraded)
+# TYPE hb_vault_seals_integrity gauge
+hb_vault_seals_integrity 1
+# HELP hb_codex_sync_state Codex sync (1=synchronized,0=syncing/other)
+# TYPE hb_codex_sync_state gauge
+hb_codex_sync_state 1
