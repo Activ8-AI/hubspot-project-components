@@ -66,7 +66,12 @@ jobs:
           fi
 
       - name: Run build operationalization guard
-        run: npm run operationalize:build
+        run: |
+          if [ -f package.json ]; then
+            npm run operationalize:build
+          else
+            node scripts/build-operationalization-check.mjs
+          fi
 
       - name: Run buildwide operationalization loop
         env:
@@ -74,16 +79,33 @@ jobs:
         run: |
           if [ "${EVENT_NAME}" = "pull_request" ]; then
             echo "pull_request event detected; running buildwide operationalization in dry-run mode."
-            npm run operationalize:repo -- --dry-run
+            if [ -f package.json ]; then
+              npm run operationalize:repo -- --dry-run
+            else
+              node scripts/operationalize-buildwide.mjs --dry-run
+            fi
           elif [ -n "${NOTION_API_TOKEN:-}" ]; then
-            npm run operationalize:repo -- --with-sync --update-performance
+            if [ -f package.json ]; then
+              npm run operationalize:repo -- --with-sync --update-performance
+            else
+              node scripts/operationalize-buildwide.mjs --with-sync --update-performance
+            fi
           else
             echo "NOTION_API_TOKEN not configured; falling back to dry-run."
-            npm run operationalize:repo -- --dry-run
+            if [ -f package.json ]; then
+              npm run operationalize:repo -- --dry-run
+            else
+              node scripts/operationalize-buildwide.mjs --dry-run
+            fi
           fi
 
       - name: Run action persistence self-check
-        run: npm run action-persistence:check
+        run: |
+          if [ -f package.json ]; then
+            npm run action-persistence:check
+          else
+            node scripts/action-persistence-self-check.mjs
+          fi
 
       - name: Create or update governed write-back PR
         id: writeback
