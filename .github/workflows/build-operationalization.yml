@@ -147,18 +147,20 @@ jobs:
         if: always()
         run: |
           summary_failed=0
+          latest_build_md="$(ls -1 artifacts/build-operationalization/*__build_operationalization.md 2>/dev/null | sort | tail -n 1)"
+          latest_buildwide_md="$(ls -1 artifacts/build-operationalization/*__repo_operationalization.md 2>/dev/null | sort | tail -n 1)"
           echo "## Build Operationalization" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          if [ -f artifacts/build-operationalization/latest__build_operationalization.md ]; then
-            cat artifacts/build-operationalization/latest__build_operationalization.md >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "${latest_build_md}" ]; then
+            cat "${latest_build_md}" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "- No build operationalization artifact was generated." >> "$GITHUB_STEP_SUMMARY"
           fi
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "## Buildwide Operationalization" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          if [ -f artifacts/build-operationalization/latest__buildwide_operationalization.md ]; then
-            cat artifacts/build-operationalization/latest__buildwide_operationalization.md >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "${latest_buildwide_md}" ]; then
+            cat "${latest_buildwide_md}" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "- No buildwide operationalization artifact was generated." >> "$GITHUB_STEP_SUMMARY"
             summary_failed=1
