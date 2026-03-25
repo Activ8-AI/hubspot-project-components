@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://activ8.ai/schemas/skill-memory-entry.schema.json",
+  "title": "MAOS Skill Memory Entry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "skill_id",
+    "memory_type",
+    "skill_name",
+    "purpose",
+    "inputs_required",
+    "outputs",
+    "evidence_required",
+    "approval_gate",
+    "verification",
+    "fail_closed",
+    "source_ref",
+    "owner",
+    "tags",
+    "status",
+    "review_state",
+    "approval_reference",
+    "provenance",
+    "recorded_at",
+    "request_id"
+  ],
+  "properties": {
+    "skill_id": { "type": "string", "minLength": 1 },
+    "memory_type": { "const": "procedural" },
+    "skill_name": { "type": "string", "minLength": 1 },
+    "purpose": { "type": "string", "minLength": 1 },
+    "inputs_required": { "type": "array", "items": { "type": "string" } },
+    "outputs": { "type": "array", "items": { "type": "string" } },
+    "evidence_required": { "type": "array", "items": { "type": "string" } },
+    "approval_gate": { "type": "string", "minLength": 1 },
+    "verification": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "fail_closed": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "source_ref": { "type": "string", "minLength": 1 },
+    "owner": { "type": "string", "minLength": 1 },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "status": { "enum": ["draft", "active", "deprecated"] },
+    "review_state": { "enum": ["quarantine", "approved", "rejected"] },
+    "approval_reference": { "type": ["string", "null"] },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_ref",
+        "recorded_at",
+        "writing_agent",
+        "confidence",
+        "validation_metadata"
+      ],
+      "properties": {
+        "source_ref": { "type": "string", "minLength": 1 },
+        "recorded_at": { "type": "string", "minLength": 1 },
+        "writing_agent": { "type": "string", "minLength": 1 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "validation_metadata": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "recorded_at": { "type": "string", "minLength": 1 },
+    "request_id": { "type": "string", "minLength": 1 }
+  }
+}

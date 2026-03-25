@@ -1,0 +1,93 @@
+# managed-by: activ8-ai-context-pack | pack-version: 1.2.1
+# source-sha: a0d4785
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix maos: <https://activ8.ai/maos#> .
+
+maos:ProvenanceShape
+  a sh:NodeShape ;
+  sh:targetClass maos:Provenance ;
+  sh:property [
+    sh:path maos:source_ref ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+  ] ;
+  sh:property [
+    sh:path maos:recorded_at ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+  ] ;
+  sh:property [
+    sh:path maos:writing_agent ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+  ] ;
+  sh:property [
+    sh:path maos:confidence ;
+    sh:datatype xsd:decimal ;
+    sh:minInclusive 0 ;
+    sh:maxInclusive 1 ;
+    sh:minCount 1 ;
+  ] ;
+  sh:property [
+    sh:path maos:validation_metadata ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+  ] .
+
+maos:EpisodicMemoryShape
+  a sh:NodeShape ;
+  sh:targetClass maos:EpisodicMemory ;
+  sh:property [
+    sh:path maos:source_ref ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+  ] ;
+  sh:property [
+    sh:path maos:recorded_at ;
+    sh:datatype xsd:dateTime ;
+    sh:minCount 1 ;
+  ] .
+
+maos:SemanticMemoryShape
+  a sh:NodeShape ;
+  sh:targetClass maos:SemanticMemory ;
+  sh:node maos:ProvenanceShape ;
+  sh:property [
+    sh:path maos:validation_metadata ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+  ] .
+
+maos:ProceduralSkillShape
+  a sh:NodeShape ;
+  sh:targetClass maos:ProceduralSkill ;
+  sh:node maos:ProvenanceShape ;
+  sh:property [
+    sh:path maos:review_state ;
+    sh:in ( "quarantine" "approved" "rejected" ) ;
+    sh:minCount 1 ;
+  ] ;
+  sh:property [
+    sh:path maos:approval_reference ;
+    sh:datatype xsd:string ;
+  ] ;
+  sh:property [
+    sh:path maos:verification ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+  ] ;
+  sh:property [
+    sh:path maos:fail_closed ;
+    sh:datatype xsd:string ;
+    sh:minCount 1 ;
+  ] .
+
+maos:NormativeMemoryShape
+  a sh:NodeShape ;
+  sh:targetClass maos:NormativeMemory ;
+  sh:property [
+    sh:path maos:write_authority ;
+    sh:in ( "human_only" ) ;
+    sh:minCount 1 ;
+  ] .

@@ -1,24 +1,25 @@
 <!-- managed-by: activ8-ai-context-pack | pack-version: 1.2.0 -->
 <!-- source-sha: a0d4785 -->
-<!-- platform: github-copilot | tier: T2 | version: 1.2.0 | policy: ai-agent-policy@wrapper | updated: 2026-03-18 -->
+<!-- platform: chatgpt | tier: T1 | version: 1.2.0 | policy: ai-agent-policy@wrapper | updated: 2026-03-18 -->
 
-# GitHub Copilot Instructions — hubspot-project-components
+# ChatGPT Agent Instructions — hubspot-project-components
 
 **Charter binding:** Activ8 AI Operational Execution & Accountability Charter (v1.5).
 
-## Source of truth
+## Context routing (don’t guess)
 
-- **Policy:** `.github/ai-agent-policy.md` (this repo) → points to canonical central policy.
-- **Map:** `docs/SOURCES-OF-TRUTH.md` (this repo) → points to canonical central map.
-- **Audience + surface contract:** `docs/AUDIENCE-SURFACE-CONTRACT.md`
+- Start with `docs/SOURCES-OF-TRUTH.md` in this repo.
+- Use `docs/AUDIENCE-SURFACE-CONTRACT.md` to determine audience, naming, and trace expectations.
+- For canonical governance/evidence: use central policy + SSOT map in `https://github.com/Activ8-AI/activ8-ai-unified-mcp-server`.
 
-## Operating rules (minimal)
+## Output contract
 
-- **Output contract:** `Progress | Evidence | Blockers`
-- **Source-first:** read the file/record before asserting what exists.
-- **Evidence-citation:** cite file path + line numbers (or tool output) for factual claims.
-- **Trace-first:** assume prior lineage exists; bind `Canonical Source`, `Genesis`, and `Trace Origin` on governed surfaces.
-- **No root drift:** follow this repo’s root/structure rules if present.
+`Progress | Evidence | Blockers`
+
+## Execution Rule
+
+- Obvious-Answer Question Elimination Rule applies.
+- Execute the next obvious step instead of asking a low-value follow-up question.
 
 ## Seek-First Planning Gate
 
@@ -35,17 +36,6 @@
 - **Build on established work:** extend, refine, or elevate what exists. Respect artifact lineage.
 - **Create new only when necessary:** new artifacts or structures only when no suitable reference, structure, or precedent exists.
 - **Fail closed on deviation:** if verification is missing, the user correction changes the path, or drift is detected, stop, surface the mismatch, and restart from verified state.
-
-## Obvious-Answer Question Elimination Rule
-
-- Do not add obvious-answer closing questions.
-- If the next step is already resolved by the user instruction, perform it.
-
-## Runtime Session Bootstrap Gate
-
-- `agent_session_init` is the runtime bootstrap gate for identity-bound sessions.
-- Call it before substantive MCP tool use and continue from the returned seek-first planning payload.
-- If the runtime returns `SESSION_INIT_REQUIRED`, bootstrap first instead of working around the gate.
 
 ## Persistent Learning System Contract
 
@@ -69,3 +59,8 @@
 - `MEASURE` -> evidence, telemetry, and evaluation.
 - `MANAGE` -> response, override, rollback, deactivation, and continual improvement.
 - Import NIST as enforceable control-plane logic for socio-technical agent systems, not as a generic compliance checklist.
+
+## Trace Rule
+
+- Treat prior lineage as the default assumption.
+- Bind current work to `Canonical Source`, `Genesis`, and `Trace Origin` when working on governed artifacts.

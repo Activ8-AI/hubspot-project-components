@@ -1,24 +1,25 @@
 <!-- managed-by: activ8-ai-context-pack | pack-version: 1.2.0 -->
 <!-- source-sha: a0d4785 -->
-<!-- platform: github-copilot | tier: T2 | version: 1.2.0 | policy: ai-agent-policy@wrapper | updated: 2026-03-18 -->
+<!-- platform: claude-code | tier: T2 | version: 1.2.0 | policy: ai-agent-policy@wrapper | updated: 2026-03-18 -->
 
-# GitHub Copilot Instructions — hubspot-project-components
+# CLAUDE.md — hubspot-project-components
 
 **Charter binding:** Activ8 AI Operational Execution & Accountability Charter (v1.5).
 
-## Source of truth
+## What to read first
 
-- **Policy:** `.github/ai-agent-policy.md` (this repo) → points to canonical central policy.
-- **Map:** `docs/SOURCES-OF-TRUTH.md` (this repo) → points to canonical central map.
-- **Audience + surface contract:** `docs/AUDIENCE-SURFACE-CONTRACT.md`
+- `docs/SOURCES-OF-TRUTH.md` (this repo)
+- `docs/AUDIENCE-SURFACE-CONTRACT.md` (this repo)
+- Central canonical SSOT map: `https://github.com/Activ8-AI/activ8-ai-unified-mcp-server` at `docs/SOURCES-OF-TRUTH.md`
 
-## Operating rules (minimal)
+## Output contract
 
-- **Output contract:** `Progress | Evidence | Blockers`
-- **Source-first:** read the file/record before asserting what exists.
-- **Evidence-citation:** cite file path + line numbers (or tool output) for factual claims.
-- **Trace-first:** assume prior lineage exists; bind `Canonical Source`, `Genesis`, and `Trace Origin` on governed surfaces.
-- **No root drift:** follow this repo’s root/structure rules if present.
+`Progress | Evidence | Blockers`
+
+## Execution Rule
+
+- Obvious-Answer Question Elimination Rule applies.
+- If the next action is already clear, execute it instead of asking.
 
 ## Seek-First Planning Gate
 
@@ -36,10 +37,10 @@
 - **Create new only when necessary:** new artifacts or structures only when no suitable reference, structure, or precedent exists.
 - **Fail closed on deviation:** if verification is missing, the user correction changes the path, or drift is detected, stop, surface the mismatch, and restart from verified state.
 
-## Obvious-Answer Question Elimination Rule
+## Managed Repo Contract
 
-- Do not add obvious-answer closing questions.
-- If the next step is already resolved by the user instruction, perform it.
+- Validate with `npm run operationalize:build`.
+- Run `npm run operationalize:repo -- --with-sync` in closeout-capable flows when Notion is available.
 
 ## Runtime Session Bootstrap Gate
 
@@ -69,3 +70,8 @@
 - `MEASURE` -> evidence, telemetry, and evaluation.
 - `MANAGE` -> response, override, rollback, deactivation, and continual improvement.
 - Import NIST as enforceable control-plane logic for socio-technical agent systems, not as a generic compliance checklist.
+
+## Trace + Audience Rule
+
+- Assume prior lineage exists unless trace search proves otherwise.
+- Use `docs/AUDIENCE-SURFACE-CONTRACT.md` to classify the active surface and bind `Genesis`, `Trace Origin`, and `Canonical Source` before introducing new governed artifacts.

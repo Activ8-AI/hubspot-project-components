@@ -1,0 +1,70 @@
+{
+  "schema_version": "maos_governance_thresholds_v1",
+  "updated": "2026-03-24",
+  "deployment_stage": "pre-production",
+  "policy": {
+    "do_not_deploy_until_active_and_tested": true,
+    "description": "T1 leading indicators warn early; T2 thresholds are hard governance ceilings for expansion or production promotion."
+  },
+  "t1_leading_indicators": [
+    {
+      "id": "correction_loop_ratio",
+      "metric": "gate_decisions_block / max(tool_calls,1)",
+      "warning_threshold": 0.1,
+      "owner": "PrimeAgent",
+      "action": "Review drift and open sentinel evaluation before autonomy expansion."
+    },
+    {
+      "id": "structural_tool_error_rate",
+      "metric": "(tool_errors - tool_errors_transient - tool_errors_gate_blocked) / max(tool_calls,1)",
+      "warning_threshold": 0.2,
+      "owner": "PrimeAgent",
+      "action": "Investigate error cluster and hold rollout if sustained."
+    },
+    {
+      "id": "identity_failure_rate",
+      "metric": "identity_failures / max(identity_checks,1)",
+      "warning_threshold": 0.05,
+      "owner": "GovernanceOwner",
+      "action": "Inspect identity envelope failures and token issuance path."
+    },
+    {
+      "id": "evidence_failure_rate",
+      "metric": "evidence_failures / max(evidence_emissions,1)",
+      "warning_threshold": 0.05,
+      "owner": "GovernanceOwner",
+      "action": "Pause trust claims until evidence emissions stabilize."
+    }
+  ],
+  "t2_thresholds": [
+    {
+      "id": "correction_loop_ratio_ceiling",
+      "metric": "gate_decisions_block / max(tool_calls,1)",
+      "block_threshold": 0.15,
+      "owner": "PrimeAgent",
+      "action": "Fail closed and require STOP_RESET_REALIGN evaluation."
+    },
+    {
+      "id": "structural_tool_error_ceiling",
+      "metric": "(tool_errors - tool_errors_transient - tool_errors_gate_blocked) / max(tool_calls,1)",
+      "block_threshold": 0.5,
+      "owner": "PrimeAgent",
+      "action": "Block deployment and review execution/data plane integrity."
+    },
+    {
+      "id": "identity_failure_count_ceiling",
+      "metric": "identity_failures",
+      "block_threshold": 5,
+      "owner": "GovernanceOwner",
+      "action": "Lock autonomy until identity path is remediated."
+    },
+    {
+      "id": "mcp_health_ceiling",
+      "metric": "mcp_health_status",
+      "block_threshold": 200,
+      "operator": "equals",
+      "owner": "OpsAgent",
+      "action": "Do not promote traffic when MCP health is not healthy."
+    }
+  ]
+}

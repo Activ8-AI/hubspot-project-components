@@ -1,31 +1,34 @@
 <!-- managed-by: activ8-ai-context-pack | pack-version: 1.2.0 -->
 <!-- source-sha: a0d4785 -->
-<!-- platform: github-copilot | tier: T2 | version: 1.2.0 | policy: ai-agent-policy@wrapper | updated: 2026-03-18 -->
+<!-- platform: cursor | tier: T2 | version: 1.2.0 | policy: ai-agent-policy@wrapper | updated: 2026-03-18 -->
 
-# GitHub Copilot Instructions — hubspot-project-components
+# Cursor / Composer Agent Instructions — hubspot-project-components
 
 **Charter binding:** Activ8 AI Operational Execution & Accountability Charter (v1.5).
 
-## Source of truth
+## Where to look first (context routing)
 
-- **Policy:** `.github/ai-agent-policy.md` (this repo) → points to canonical central policy.
-- **Map:** `docs/SOURCES-OF-TRUTH.md` (this repo) → points to canonical central map.
-- **Audience + surface contract:** `docs/AUDIENCE-SURFACE-CONTRACT.md`
+- **This repo’s SSOT map:** `docs/SOURCES-OF-TRUTH.md`
+- **This repo’s audience + surface contract:** `docs/AUDIENCE-SURFACE-CONTRACT.md`
+- **Central SSOT map (canonical):** `https://github.com/Activ8-AI/activ8-ai-unified-mcp-server` at `docs/SOURCES-OF-TRUTH.md`
 
-## Operating rules (minimal)
+## Output contract
 
-- **Output contract:** `Progress | Evidence | Blockers`
-- **Source-first:** read the file/record before asserting what exists.
-- **Evidence-citation:** cite file path + line numbers (or tool output) for factual claims.
-- **Trace-first:** assume prior lineage exists; bind `Canonical Source`, `Genesis`, and `Trace Origin` on governed surfaces.
-- **No root drift:** follow this repo’s root/structure rules if present.
+`Progress | Evidence | Blockers` — no padding.
+
+## Minimal working standard
+
+- Prefer reading sources over guessing.
+- Keep context tight: store pointers (paths/IDs), fetch details just-in-time.
+- Update `memory/MEMORY.md` when state changes (Live State + Pending).
 
 ## Seek-First Planning Gate
 
 - No action begins without a plan.
 - Verify in order: Notion first, then repo, then local/runtime files.
 - Search for existing artifacts before touching or proposing anything new.
-- Build on established work whenever possible; create new only when no suitable precedent exists.
+- Build on lineage before create-new.
+- For non-trivial work, externalize a short plan with objective, evidence, options, recommendation, and next action.
 
 ## Seek First to Understand + Verify What Exists
 
@@ -38,8 +41,19 @@
 
 ## Obvious-Answer Question Elimination Rule
 
-- Do not add obvious-answer closing questions.
-- If the next step is already resolved by the user instruction, perform it.
+- Do not end with a question when the user already made the next action clear.
+- Execute the next obvious step and return the result.
+
+## Managed Repo Operationalization
+
+- This repo is governed by the Activ8 context pack contract.
+- Keep `npm run operationalize:repo` available and `.github/workflows/build-operationalization.yml` installed.
+
+## Automatic Source Bootstrap
+
+- Use `memory/session-brief.md` as the first session-start pointer set.
+- `scripts/session-boot.mjs` must populate the brief with automatic source-bootstrap results from `scripts/query-source-ladder.mjs`.
+- If the bootstrap binding is missing, stop and repair the managed contract before continuing.
 
 ## Runtime Session Bootstrap Gate
 
@@ -69,3 +83,9 @@
 - `MEASURE` -> evidence, telemetry, and evaluation.
 - `MANAGE` -> response, override, rollback, deactivation, and continual improvement.
 - Import NIST as enforceable control-plane logic for socio-technical agent systems, not as a generic compliance checklist.
+
+## Trace + Surface Handling
+
+- Assume the active concept or artifact already has prior lineage unless trace search proves otherwise.
+- Use `docs/AUDIENCE-SURFACE-CONTRACT.md` to classify the surface you are touching.
+- When changing governed surfaces, bind `Canonical Source`, `Genesis`, and `Trace Origin` before treating the work as final.
