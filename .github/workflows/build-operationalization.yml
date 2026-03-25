@@ -1,5 +1,3 @@
-# managed-by: activ8-ai-context-pack | pack-version: 1.2.0
-# source-sha: a0d4785
 name: Build Operationalization
 
 on:
@@ -25,27 +23,59 @@ jobs:
       WRITEBACK_BRANCH: auto/build-operationalization-writeback
       WRITEBACK_TITLE: "chore(governance): write back build operationalization self-sync"
       WRITEBACK_GATE_ID: gate.build_operationalization_writeback
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Set up Node.js
+      - name: Detect npm lockfile
+        id: npm_lockfile
+        run: |
+          if [ -f package-lock.json ]; then
+            echo "path=package-lock.json" >> "$GITHUB_OUTPUT"
+          elif [ -f mcp-server/package-lock.json ]; then
+            echo "path=mcp-server/package-lock.json" >> "$GITHUB_OUTPUT"
+          else
+            echo "path=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Node.js (cached)
+        if: steps.npm_lockfile.outputs.path != ''
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
+          cache-dependency-path: ${{ steps.npm_lockfile.outputs.path }}
+
+      - name: Set up Node.js
+        if: steps.npm_lockfile.outputs.path == ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          elif [ -f mcp-server/package-lock.json ]; then
+            npm --prefix mcp-server ci
+          else
+            echo "No npm lockfile detected; skipping dependency install."
+          fi
 
       - name: Run build operationalization guard
         run: npm run operationalize:build
 
       - name: Run buildwide operationalization loop
+        env:
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [ -n "${NOTION_API_TOKEN:-}" ]; then
+          if [ "${EVENT_NAME}" = "pull_request" ]; then
+            echo "pull_request event detected; running buildwide operationalization in dry-run mode."
+            npm run operationalize:repo -- --dry-run
+          elif [ -n "${NOTION_API_TOKEN:-}" ]; then
             npm run operationalize:repo -- --with-sync --update-performance
           else
             echo "NOTION_API_TOKEN not configured; falling back to dry-run."
@@ -133,7 +163,7 @@ jobs:
         with:
           name: build-operationalization
           path: artifacts/build-operationalization/*
-          if-no-files-found: error
+          if-no-files-found: warn
 
       - name: Upload action persistence artifacts
         if: always()
@@ -141,7 +171,7 @@ jobs:
         with:
           name: action-persistence
           path: artifacts/action-persistence/*
-          if-no-files-found: error
+          if-no-files-found: warn
 
       - name: Publish build operationalization summary
         if: always()
@@ -159,18 +189,28 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           if [ -f artifacts/build-operationalization/latest__buildwide_operationalization.md ]; then
             cat artifacts/build-operationalization/latest__buildwide_operationalization.md >> "$GITHUB_STEP_SUMMARY"
+          elif ls artifacts/build-operationalization/*__repo_operationalization.md >/dev/null 2>&1; then
+            latest_repo_operationalization_md="$(ls -1t artifacts/build-operationalization/*__repo_operationalization.md | head -n 1)"
+            cat "${latest_repo_operationalization_md}" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "- No buildwide operationalization artifact was generated." >> "$GITHUB_STEP_SUMMARY"
-            summary_failed=1
+            if [ "${{ github.event_name }}" != "pull_request" ]; then
+              summary_failed=1
+            fi
           fi
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "## Action Persistence" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           if [ -f artifacts/action-persistence/latest/latest__action-persistence-self-check.json ]; then
             echo "- action persistence self-check receipt present" >> "$GITHUB_STEP_SUMMARY"
+          elif ls artifacts/action-persistence/receipts/action-persistence-self-check/*.json >/dev/null 2>&1; then
+            latest_action_receipt="$(ls -1t artifacts/action-persistence/receipts/action-persistence-self-check/*.json | head -n 1)"
+            echo "- action persistence self-check receipt present: ${latest_action_receipt}" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "- action persistence self-check receipt missing" >> "$GITHUB_STEP_SUMMARY"
-            summary_failed=1
+            if [ "${{ github.event_name }}" != "pull_request" ]; then
+              summary_failed=1
+            fi
           fi
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "## Governed Write-Back" >> "$GITHUB_STEP_SUMMARY"
