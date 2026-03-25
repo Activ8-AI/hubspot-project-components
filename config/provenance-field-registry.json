@@ -1,0 +1,41 @@
+{
+  "schema_version": "maos_provenance_field_registry_v1",
+  "updated": "2026-03-24",
+  "fields": [
+    {
+      "name": "source_ref",
+      "required_for": ["episodic", "semantic", "procedural", "normative"],
+      "description": "Canonical source anchor for the memory or evidence record."
+    },
+    {
+      "name": "recorded_at",
+      "required_for": ["episodic", "semantic", "procedural", "normative"],
+      "description": "Write timestamp in ISO-8601 UTC."
+    },
+    {
+      "name": "writing_agent",
+      "required_for": ["episodic", "semantic", "procedural"],
+      "description": "Named actor or agent that initiated the write."
+    },
+    {
+      "name": "confidence",
+      "required_for": ["semantic", "procedural"],
+      "description": "0-1 confidence score for governed retrieval and approval workflows."
+    },
+    {
+      "name": "validation_metadata",
+      "required_for": ["semantic", "procedural"],
+      "description": "Evidence of validation, review, or fail-closed rules applied before persistence."
+    },
+    {
+      "name": "approval_reference",
+      "required_for": ["procedural"],
+      "description": "Approval or review reference required before a skill is publishable."
+    },
+    {
+      "name": "review_state",
+      "required_for": ["procedural"],
+      "description": "quarantine, approved, or rejected lifecycle state."
+    }
+  ]
+}

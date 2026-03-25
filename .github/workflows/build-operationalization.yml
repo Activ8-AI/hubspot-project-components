@@ -1,0 +1,187 @@
+# managed-by: activ8-ai-context-pack | pack-version: 1.2.0
+# source-sha: a0d4785
+name: Build Operationalization
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build-operationalization:
+    name: Build Operationalization Guard
+    runs-on: ubuntu-latest
+    env:
+      NOTION_API_TOKEN: ${{ secrets.NOTION_API_TOKEN }}
+      WRITEBACK_BRANCH: auto/build-operationalization-writeback
+      WRITEBACK_TITLE: "chore(governance): write back build operationalization self-sync"
+      WRITEBACK_GATE_ID: gate.build_operationalization_writeback
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run build operationalization guard
+        run: npm run operationalize:build
+
+      - name: Run buildwide operationalization loop
+        run: |
+          if [ -n "${NOTION_API_TOKEN:-}" ]; then
+            npm run operationalize:repo -- --with-sync --update-performance
+          else
+            echo "NOTION_API_TOKEN not configured; falling back to dry-run."
+            npm run operationalize:repo -- --dry-run
+          fi
+
+      - name: Run action persistence self-check
+        run: npm run action-persistence:check
+
+      - name: Create or update governed write-back PR
+        id: writeback
+        if: github.event_name != 'pull_request' && env.NOTION_API_TOKEN != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          git add -u
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "pr_url=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          RUN_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          CHANGED_FILES="$(git diff --cached --name-only | sed 's/^/- `/' | sed 's/$/`/')"
+          if [ -z "${CHANGED_FILES}" ]; then
+            CHANGED_FILES="- No tracked-file changes detected."
+          fi
+
+          cat > /tmp/build-operationalization-writeback-pr.md <<EOF
+          ## Summary
+
+          - Persist tracked-file mutations produced by the build-operationalization self-sync lane.
+          - Source workflow run: [${GITHUB_WORKFLOW} #${GITHUB_RUN_NUMBER}](${RUN_URL})
+          - Evidence artifacts:
+            - \`artifacts/build-operationalization/latest__build_operationalization.json\`
+            - \`artifacts/build-operationalization/latest__buildwide_operationalization.json\`
+            - \`artifacts/action-persistence/latest/latest__action-persistence-self-check.json\`
+
+          ## Control Plane IDs (required when control-plane paths are touched)
+
+          - **Conversation-ID:** CONVO_C-$(date +%Y%m%d)-01
+          - **Gate-ID:** ${WRITEBACK_GATE_ID}
+
+          ## Operational Impact Analysis (required)
+
+          - **Change:** Persist CI self-sync tracked-file mutations behind a governed PR instead of leaving them ephemeral in the runner.
+          - **Mechanism:** The workflow runs the live operationalization lane, stages tracked file mutations with \`git add -u\`, pushes them to \`${WRITEBACK_BRANCH}\`, and creates or updates a reviewable PR.
+          - **Why it matters:** It converts ephemeral CI convergence into auditable repo state without bypassing branch protection.
+          - **Unlocks:** Reviewable self-healing, durable canon convergence, and evidence-bound write-back from the control plane.
+          - **Next transition signals:** **Green ->** write-back PR opens or updates only when tracked drift exists, then no further tracked drift after merge. **Red ->** repeated runner-local mutations with no PR, direct pushes to \`main\`, or PR body missing audit metadata.
+          - **Timing:** Generated automatically by \`${GITHUB_WORKFLOW}\` on run #${GITHUB_RUN_NUMBER}.
+
+          ## Changed files
+
+          ${CHANGED_FILES}
+
+          ## References
+
+          - Workflow run: ${RUN_URL}
+          EOF
+
+          git checkout -B "${WRITEBACK_BRANCH}"
+          git commit -m "${WRITEBACK_TITLE}"
+          git push --force-with-lease origin "${WRITEBACK_BRANCH}"
+
+          PR_NUMBER="$(gh pr list --base main --head "${WRITEBACK_BRANCH}" --state open --json number --jq '.[0].number')"
+          if [ -n "${PR_NUMBER}" ]; then
+            gh pr edit "${PR_NUMBER}" --title "${WRITEBACK_TITLE}" --body-file /tmp/build-operationalization-writeback-pr.md
+            PR_URL="$(gh pr view "${PR_NUMBER}" --json url --jq '.url')"
+          else
+            PR_URL="$(gh pr create --base main --head "${WRITEBACK_BRANCH}" --title "${WRITEBACK_TITLE}" --body-file /tmp/build-operationalization-writeback-pr.md)"
+          fi
+
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "pr_url=${PR_URL}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload build operationalization artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-operationalization
+          path: artifacts/build-operationalization/*
+          if-no-files-found: error
+
+      - name: Upload action persistence artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: action-persistence
+          path: artifacts/action-persistence/*
+          if-no-files-found: error
+
+      - name: Publish build operationalization summary
+        if: always()
+        run: |
+          summary_failed=0
+          echo "## Build Operationalization" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f artifacts/build-operationalization/latest__build_operationalization.md ]; then
+            cat artifacts/build-operationalization/latest__build_operationalization.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- No build operationalization artifact was generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Buildwide Operationalization" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f artifacts/build-operationalization/latest__buildwide_operationalization.md ]; then
+            cat artifacts/build-operationalization/latest__buildwide_operationalization.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- No buildwide operationalization artifact was generated." >> "$GITHUB_STEP_SUMMARY"
+            summary_failed=1
+          fi
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Action Persistence" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f artifacts/action-persistence/latest/latest__action-persistence-self-check.json ]; then
+            echo "- action persistence self-check receipt present" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- action persistence self-check receipt missing" >> "$GITHUB_STEP_SUMMARY"
+            summary_failed=1
+          fi
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "## Governed Write-Back" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "- skipped on pull_request events" >> "$GITHUB_STEP_SUMMARY"
+          elif [ -z "${NOTION_API_TOKEN:-}" ]; then
+            echo "- skipped because NOTION_API_TOKEN was not configured" >> "$GITHUB_STEP_SUMMARY"
+          elif [ "${{ steps.writeback.outputs.changed }}" = "true" ]; then
+            echo "- tracked-file changes persisted to PR: ${{ steps.writeback.outputs.pr_url }}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "- no tracked-file write-back changes detected" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$summary_failed"

@@ -1,0 +1,126 @@
+{
+  "_comment": "SSOT for all MCP surface configs. Run `npm run mcp:sync` to propagate changes to every IDE/tool surface.",
+  "_doc": "See scripts/sync-mcp-connections.mjs for surface rendering logic and config/mcp-connections.schema.json for full field reference.",
+  "version": "1.1.0",
+  "servers": [
+    {
+      "id": "activ8-ai-unified",
+      "name": "Activ8 AI Unified MCP",
+      "description": "186 tools: Notion, Slack, GA4, Google Ads, GDrive, Gmail, Teamwork, Fathom, BigQuery, GCP, MAOS, PrimeBridge, Governance, Reporting",
+      "enabled": true,
+      "type": "http",
+      "url": {
+        "local": "http://localhost:6274/mcp",
+        "cloud": "https://activ8-unified-mcp-453254476832.us-central1.run.app/mcp"
+      },
+      "auth": {
+        "type": "bearer",
+        "bearer_token_env_var": "AUTH_TOKEN"
+      },
+      "port": 6274,
+      "tags": ["core", "primary"],
+      "surfaces": {
+        "claude_code_global": {
+          "enabled": true,
+          "server_key": "activ8-ai-unified",
+          "url_variant": "local",
+          "auth_mode": "literal_header",
+          "_note": "Unified MCP is the Claude Code system-wide standard. Keep it global and do not duplicate it in project settings."
+        },
+        "claude_code_project": {
+          "enabled": false,
+          "server_key": "activ8-ai-unified",
+          "url_variant": "local",
+          "auth_mode": "literal_header",
+          "_note": "Project settings should not duplicate the global unified MCP attachment."
+        },
+        "cursor": {
+          "enabled": true,
+          "server_key": "activ8-ai-unified",
+          "url_variant": "local",
+          "auth_mode": "none",
+          "_note": "Cursor does not expand env vars in headers — token omitted intentionally"
+        },
+        "codex": {
+          "enabled": true,
+          "server_key": "activ8_ai_unified",
+          "url_variant": "cloud",
+          "auth_mode": "bearer_env_var"
+        },
+        "claude_desktop": {
+          "enabled": true,
+          "server_key": "activ8-ai-unified",
+          "url_variant": "local",
+          "auth_mode": "mcp_remote_args",
+          "_note": "Claude Desktop uses npx mcp-remote wrapper — native http type not supported in this version"
+        }
+      }
+    },
+    {
+      "id": "notion",
+      "name": "Notion Official MCP",
+      "description": "Notion workspace read/write via official Notion MCP server",
+      "enabled": true,
+      "auth": {
+        "type": "bearer",
+        "bearer_token_env_var": "NOTION_API_TOKEN"
+      },
+      "tags": ["notion", "third-party"],
+      "surfaces": {
+        "claude_code_global": {
+          "enabled": false,
+          "server_key": "notion",
+          "type": "stdio",
+          "command": "npx",
+          "args": ["-y", "@notionhq/notion-mcp-server"],
+          "auth_mode": "stdio_env_headers",
+          "_note": "Direct Notion MCP is disabled in the standard Activ8 client surface; use the unified server's Notion tools instead."
+        },
+        "codex": {
+          "enabled": false,
+          "server_key": "notion",
+          "type": "http",
+          "url_variant": "cloud",
+          "url": "https://mcp.notion.com/mcp",
+          "auth_mode": "bearer_env_var",
+          "_note": "Codex should route Notion access through activ8_ai_unified as the single standard."
+        }
+      }
+    },
+    {
+      "id": "mcp-docker",
+      "name": "MCP Docker Gateway",
+      "description": "Docker system tools via MCP Docker gateway",
+      "enabled": true,
+      "type": "stdio",
+      "command": "docker",
+      "args": ["mcp", "gateway", "run"],
+      "auth": { "type": "none" },
+      "tags": ["docker", "third-party"],
+      "surfaces": {
+        "codex": {
+          "enabled": true,
+          "server_key": "MCP_DOCKER",
+          "auth_mode": "none"
+        },
+        "claude_desktop": {
+          "enabled": true,
+          "server_key": "MCP_DOCKER",
+          "auth_mode": "none"
+        }
+      }
+    }
+  ],
+  "surface_paths": {
+    "claude_code_global": "~/.mcp.json",
+    "claude_code_project": ".claude/settings.json",
+    "cursor": ".cursor/mcp.json",
+    "codex": "~/.codex/config.toml",
+    "claude_desktop": "~/Library/Application Support/Claude/claude_desktop_config.json"
+  },
+  "sync_meta": {
+    "stamp_path": "config/.mcp-sync-stamp.json",
+    "env_override_local_url": "LOCAL_MCP_URL",
+    "env_override_cloud_url": "CLOUD_MCP_URL"
+  }
+}
